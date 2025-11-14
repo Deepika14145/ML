@@ -1,0 +1,83 @@
+# ==========================================
+# Hierarchical Clustering on Cities Dataset
+# ==========================================
+
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.cluster import AgglomerativeClustering
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# -----------------------------
+# STEP 1: Load the dataset
+# -----------------------------
+data = pd.read_csv("cities_r2.csv")
+print("✅ Dataset loaded successfully!\n")
+print(data.head())
+
+# -----------------------------
+# STEP 2: Check for missing values
+# -----------------------------
+print("\nMissing values per column:")
+print(data.isnull().sum())
+
+# -----------------------------
+# STEP 3: Select the column for clustering
+# -----------------------------
+X = data[['effective_literacy_rate_total']].copy()
+
+# -----------------------------
+# STEP 4: Scale the data
+# -----------------------------
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# -----------------------------
+# STEP 5: Create Dendrogram
+# -----------------------------
+plt.figure(figsize=(10, 5))
+linkage_matrix = linkage(X_scaled, method='ward')  # Ward minimizes variance
+dendrogram(linkage_matrix, labels=data['name_of_city'].values, leaf_rotation=90)
+plt.title("Hierarchical Clustering Dendrogram")
+plt.xlabel("Cities")
+plt.ylabel("Euclidean Distance")
+plt.tight_layout()
+
+
+
+
+plt.show()
+
+# From the dendrogram, suppose we decide there are 3 clusters
+optimal_clusters = 3
+
+# -----------------------------
+# STEP 6: Apply Agglomerative Clustering
+# -----------------------------
+hc = AgglomerativeClustering(n_clusters=optimal_clusters, metric='euclidean', linkage='ward')
+
+data['Cluster'] = hc.fit_predict(X_scaled)
+
+# -----------------------------
+# STEP 7: Analyze Results
+# -----------------------------
+print("\n📊 Cluster assignments:")
+print(data[['name_of_city', 'effective_literacy_rate_total', 'Cluster']].head(10))
+
+# -----------------------------
+# STEP 8: Visualize the clusters
+# -----------------------------
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=data['effective_literacy_rate_total'], y=data['population_total'],
+                hue=data['Cluster'], palette='Set2', s=100)
+plt.title('Hierarchical Clustering based on Literacy Rate')
+plt.xlabel('Effective Literacy Rate (Total)')
+plt.ylabel('Total Population')
+plt.legend(title='Cluster')
+plt.show()
+
+
+
+
