@@ -1,0 +1,63 @@
+# ============================================
+# Clustering: K-Means (Manual Initialization)
+# ============================================
+
+from sklearn.cluster import KMeans
+import numpy as np
+
+# --------------------------------------------
+# STEP 1: Define 8 data points
+# --------------------------------------------
+points = np.array([
+    [0.1, 0.6],   # P1
+    [0.15, 0.71], # P2
+    [0.08, 0.9],  # P3
+    [0.16, 0.85], # P4
+    [0.2, 0.3],   # P5
+    [0.25, 0.5],  # P6
+    [0.24, 0.1],  # P7
+    [0.3, 0.2]    # P8
+])
+
+# --------------------------------------------
+# STEP 2: Set initial centroids manually
+# --------------------------------------------
+initial_centroids = np.array([
+    points[0],  # m1 = P1 (Cluster C1)
+    points[7]   # m2 = P8 (Cluster C2)
+])
+
+# --------------------------------------------
+# STEP 3: Apply K-Means Clustering
+# --------------------------------------------
+kmeans = KMeans(
+    n_clusters=2,
+    init=initial_centroids,
+    n_init=1,        # ensures sklearn doesn’t re-randomize centroids
+    max_iter=300,
+    random_state=0
+)
+
+kmeans.fit(points)
+
+# --------------------------------------------
+# STEP 4: Display results
+# --------------------------------------------
+print("Final (Updated) Centroids:")
+print(f"m1 = {kmeans.cluster_centers_[0]}")
+print(f"m2 = {kmeans.cluster_centers_[1]}\n")
+
+print("Cluster Labels for each point (0 = C1, 1 = C2):")
+for i, label in enumerate(kmeans.labels_):
+    print(f"P{i+1} -> Cluster {label+1}")
+
+# Q1: Which cluster does P6 belong to?
+print(f"\n1️⃣ P6 belongs to Cluster: C{kmeans.labels_[5] + 1}")
+
+# Q2: Population around m2
+cluster_sizes = np.bincount(kmeans.labels_)
+print(f"2️⃣ Population around m2 (C2): {cluster_sizes[1]} points")
+
+# Q3: Updated centroid values
+print(f"3️⃣ Updated value of m1: {kmeans.cluster_centers_[0]}")
+print(f"   Updated value of m2: {kmeans.cluster_centers_[1]}")
